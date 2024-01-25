@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
-import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 
 import java.util.Set;
 import java.util.UUID;
@@ -30,12 +29,12 @@ public class ClientRunner {
     @Bean
     ApplicationRunner runClients() {
         return args -> {
-            var clientId = "crm";
+            var clientId = "spring";
             if (this.repository.findByClientId(clientId) == null) {
                 this.repository.save(
                         RegisteredClient.withId(UUID.randomUUID().toString())
                                 .clientId(clientId)
-                                .clientSecret("{bcrypt}$2a$14$QjNlaWdhx/1EXzdr0d4lDe2L06FLvIL/Z.NMs1ERbJ/0xnHBGKm5a")
+                                .clientSecret("{bcrypt}$2a$14$GvMY/gUdZ9cd7MbcsI2jQesAMj2tx8D1wV7YdBhOrik2Bfkf6MwMa")
                                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                                 .authorizationGrantTypes(grantTypes -> grantTypes.addAll(Set.of(
                                         AuthorizationGrantType.AUTHORIZATION_CODE,
@@ -47,7 +46,11 @@ public class ClientRunner {
                                         "user.write",
                                         "user.read",
                                         OidcScopes.OPENID
-                                ))).build()
+                                )))
+                                .clientSettings(ClientSettings.builder()
+                                        .requireAuthorizationConsent(true)
+                                        .build())
+                        .build()
                 );
 
             }

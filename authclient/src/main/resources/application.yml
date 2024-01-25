@@ -10,9 +10,9 @@ spring:
         registration:
           spring:
             provider: spring
-            client-id: crm
+            client-id: spring
             client-secret: password
-            authorization-grant-type: authorization_code
+            authorization-grant-type:
             client-authentication-method: client_secret_basic
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             scope: user.read, openid

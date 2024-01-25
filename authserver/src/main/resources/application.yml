@@ -19,3 +19,8 @@ jwk:
     salt: 746F702D736563726574
 server:
   port: 8888
+springdoc:
+  swagger-ui:
+    path: /index.html
+    oauth:
+      realm: localhost:8888

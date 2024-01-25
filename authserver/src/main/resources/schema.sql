@@ -1,3 +1,10 @@
+drop table authorities;
+drop table users;
+drop table oauth2_authorization;
+drop table oauth2_authorization_consent;
+drop table oauth2_registered_client;
+drop table rsa_key_pairs;
+
 -- clients
 create table if not exists oauth2_registered_client
 (
