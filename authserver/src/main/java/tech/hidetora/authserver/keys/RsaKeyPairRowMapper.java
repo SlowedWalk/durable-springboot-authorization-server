@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
 
 /**
  * @author hidetora
@@ -34,8 +36,8 @@ public class RsaKeyPairRowMapper implements RowMapper<RSAKeyPair> {
 
             var privateKey = this.rsaPrivateKeyConverter.deserializeFromByteArray(privateKeyBytes);
             var publicKey = this.rsaPublicKeyConverter.deserializeFromByteArray(publicKeyBytes);
-            System.out.println("DATE :: " + rs.getDate("created_at").toInstant());
-            var createdAt = rs.getDate("created_at").toInstant();
+            Date sqlDate = rs.getDate("created_at");
+            Instant createdAt = sqlDate.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
             var id = rs.getString("id");
 
             return new RSAKeyPair(id, privateKey, publicKey, createdAt);
