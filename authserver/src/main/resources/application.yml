@@ -1,22 +1,6 @@
 spring:
-#  security:
-#    oauth2:
-#      authorizationserver:
-#        client:
-#          crm-client:
-#            require-authorization-consent: true
-#            registration:
-#              client-id: crm
-#              client-secret: "{bcrypt}$2a$14$QjNlaWdhx/1EXzdr0d4lDe2L06FLvIL/Z.NMs1ERbJ/0xnHBGKm5a"
-#              authorization-grant-types:
-#                - authorization_code
-#                - refresh_token
-#                - client_credentials
-#              redirect-uris:
-#                - http://127.0.0.1:8080/login/oauth2/code/spring
-#              scopes: user.read, user.write, openid
-#              client-authentication-methods:
-#                - client_secret_basic
+  application:
+    name: AUTHORIZATION-SERVER
   datasource:
     url: jdbc:postgresql://localhost:5432/auth-server
     username: postgres
@@ -24,3 +8,14 @@ spring:
   sql:
     init:
       mode: always
+jwt:
+  key:
+    id: hidetora
+    private: classpath:/certs/app.key # should be stored in something like volt
+    public: classpath:/certs/app.pub
+jwk:
+  persistence:
+    password: password
+    salt: 746F702D736563726574
+server:
+  port: 8888

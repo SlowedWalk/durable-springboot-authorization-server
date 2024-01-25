@@ -3,6 +3,8 @@ package tech.hidetora.authserver;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.Scanner;
+
 /**
  * @author hidetora
  * @version 1.0.0
@@ -12,7 +14,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Slf4j
 public class GenerateBcryptPassword {
     public static void main(String[] args) {
-        String password = "password";
+        // read password from user's input
+        Scanner scanner = new Scanner(System.in);  // Create a Scanner object
+        System.out.println("Enter username: ");
+
+        String password = scanner.nextLine();
 
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(14);
         String hashedPassword = passwordEncoder.encode(password);

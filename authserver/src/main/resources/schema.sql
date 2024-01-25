@@ -79,3 +79,13 @@ CREATE TABLE oauth2_authorization
     device_code_metadata          text          default null,
     primary key (id)
 );
+
+-- rsa_key_pairs
+create table if not exists rsa_key_pairs
+(
+    id          varchar(1000) not null primary key,
+    private_key text          not null,
+    public_key  text          not null,
+    created_at  date          not null,
+    unique (id, created_at)
+);

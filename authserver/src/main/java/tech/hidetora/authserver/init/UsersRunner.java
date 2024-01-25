@@ -1,13 +1,12 @@
-package tech.hidetora.authserver.config;
+package tech.hidetora.authserver.init;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
-import org.springframework.security.provisioning.UserDetailsManager;
 
-import javax.sql.DataSource;
 import java.util.Map;
 
 /**
@@ -16,15 +15,13 @@ import java.util.Map;
  * @since 2022/04/18
  */
 @Configuration
-public class UsersConfiguration {
+@RequiredArgsConstructor
+public class UsersRunner {
+    private final JdbcUserDetailsManager userDetailsManager;
+
 
     @Bean
-    JdbcUserDetailsManager userDetailsManager(DataSource dataSource) {
-        return new JdbcUserDetailsManager(dataSource);
-    }
-
-    @Bean
-    ApplicationRunner usersRunner(UserDetailsManager userDetailsManager) {
+    ApplicationRunner runUsers() {
         return args -> {
             var builder = User.builder().roles("USER");
             var users = Map.of(
@@ -41,6 +38,4 @@ public class UsersConfiguration {
             });
         };
     }
-
-
 }

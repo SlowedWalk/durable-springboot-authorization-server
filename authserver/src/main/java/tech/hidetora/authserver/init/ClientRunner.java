@@ -1,5 +1,6 @@
-package tech.hidetora.authserver.config;
+package tech.hidetora.authserver.init;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,19 +22,17 @@ import java.util.UUID;
  */
 
 @Configuration
-public class ClientConfiguration {
+@RequiredArgsConstructor
+public class ClientRunner {
+    private final RegisteredClientRepository repository;
+
 
     @Bean
-    RegisteredClientRepository registeredClientRepository(JdbcTemplate template) {
-        return new JdbcRegisteredClientRepository(template);
-    }
-
-    @Bean
-    ApplicationRunner clientsRunner(RegisteredClientRepository repository) {
+    ApplicationRunner runClients() {
         return args -> {
             var clientId = "crm";
-            if (repository.findByClientId(clientId) == null) {
-                repository.save(
+            if (this.repository.findByClientId(clientId) == null) {
+                this.repository.save(
                         RegisteredClient.withId(UUID.randomUUID().toString())
                                 .clientId(clientId)
                                 .clientSecret("{bcrypt}$2a$14$QjNlaWdhx/1EXzdr0d4lDe2L06FLvIL/Z.NMs1ERbJ/0xnHBGKm5a")
