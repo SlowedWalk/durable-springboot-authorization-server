@@ -56,7 +56,7 @@ public class KeyConfig {
         return Encryptors.text(password, salt);
     }
 
-    @Bean
+//    @Bean
     NimbusJwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
         return new NimbusJwtEncoder(jwkSource);
     }

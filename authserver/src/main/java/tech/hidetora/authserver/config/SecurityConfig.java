@@ -1,12 +1,21 @@
 package tech.hidetora.authserver.config;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
@@ -16,6 +25,13 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+import tech.hidetora.authserver.handler.CustomAccessDeniedHandler;
+import tech.hidetora.authserver.handler.CustomAuthenticationHandler;
 
 import javax.sql.DataSource;
 
@@ -27,11 +43,15 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
  * @since 2022/04/18
  */
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
     // https://docs.spring.io/spring-authorization-server/docs/1.1.0-SNAPSHOT/reference/html/getting-started.html#defining-required-components
+
+    private final PasswordEncoder passwordEncoder;
+
     @Bean
     @Order(1)
-    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
+    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http, MvcRequestMatcher.Builder mvc)
             throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
@@ -66,6 +86,8 @@ public class SecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
             throws Exception {
         http
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers(
                                 "/login",
@@ -78,13 +100,45 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                .exceptionHandling(ex-> ex
+                        .authenticationEntryPoint(new CustomAuthenticationHandler())
+                        .accessDeniedHandler(new CustomAccessDeniedHandler())
+                );
                 // Form login handles the redirect to the login page from the
                 // authorization server filter chain
-                .formLogin(login -> login
-                        .loginPage("/login")
-                );
+//                .formLogin(login -> login
+//                        .loginPage("/login")
+//                );
 
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(@Qualifier("jpaUserDetailService") UserDetailsService userDetailsService){
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        daoAuthenticationProvider.setHideUserNotFoundExceptions(false);
+        return new ProviderManager(daoAuthenticationProvider);
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource(){
+        CorsConfiguration corsConfiguration=new CorsConfiguration();
+        corsConfiguration.addExposedHeader("*");
+        corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addAllowedOrigin("*");
+        UrlBasedCorsConfigurationSource corsConfigurationSource=new UrlBasedCorsConfigurationSource();
+        corsConfigurationSource.registerCorsConfiguration("/**",corsConfiguration);
+        return corsConfigurationSource;
+    }
+
+    @Bean
+    MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
+        return new MvcRequestMatcher.Builder(introspector);
     }
 
     @Bean

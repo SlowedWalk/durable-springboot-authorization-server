@@ -1,5 +1,5 @@
-drop table authorities;
-drop table users;
+-- drop table authorities;
+-- drop table users;
 drop table oauth2_authorization;
 drop table oauth2_authorization_consent;
 drop table oauth2_registered_client;
@@ -25,21 +25,21 @@ create table if not exists oauth2_registered_client
 );
 
 -- users
-create table if not exists users
-(
-    username varchar(200) not null primary key,
-    password varchar(500) not null,
-    enabled  boolean      not null
-);
-
--- authorities
-create table if not exists authorities
-(
-    username  varchar(200) not null,
-    authority varchar(50)  not null,
-    constraint fk_authorities_users foreign key (username) references users (username),
-    constraint username_authority unique (username, authority)
-);
+-- create table if not exists users
+-- (
+--     username varchar(200) not null primary key,
+--     password varchar(500) not null,
+--     enabled  boolean      not null
+-- );
+--
+-- -- authorities
+-- create table if not exists authorities
+-- (
+--     username  varchar(200) not null,
+--     authority varchar(50)  not null,
+--     constraint fk_authorities_users foreign key (username) references users (username),
+--     constraint username_authority unique (username, authority)
+-- );
 
 create table if not exists oauth2_authorization_consent
 (
